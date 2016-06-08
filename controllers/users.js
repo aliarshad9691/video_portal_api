@@ -2,18 +2,7 @@ var userModel = require('../models/users');
 
 var users = {};
 
-users.get = function (req, res) {
-	
-	
-	var results = userModel.show();
-	results.then(function(data){
-		res.send(data);
-	}, function(err){
-
-	});
-		
-};
-
+// controller that handles user login request
 users.auth = function (req, res) {
 
 	if(!req.body.username || !req.body.password)
@@ -32,6 +21,7 @@ users.auth = function (req, res) {
 
 };
 
+// controller that handles user logout request
 users.logout = function (req, res) {
 
 	var sessionId = req.query.sessionId;

@@ -12,23 +12,30 @@ db.on('error', console.error);
 var configs = require('./config');
 var routes = require('./routes/routes');
 var userModel = require('./models/users');
+var helperFunctions = require('./helpers/helperFunctions');
 
 
-// serve video files.
-app.use('/videos',express.static('videos'));
-// serve client side code.
-app.use('/app',express.static('client'));
-// logging requests to consoles.
-app.use(morgan('combined'));
+// Uncomment the following lines to start logging requests to consoles.
+// app.use(morgan('combined'));
 // parse application/x-www-form-urlencoded.
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json.
 app.use(bodyParser.json());
 
-
+//connedting to mongoDB
 mongoose.connect('mongodb://'+configs.dbHost+'/'+configs.dbName);
+//populating data if DB is not already populated.
+helperFunctions.populateDb();
+
+//Initilizing routes.
 routes(app);
 
-app.listen(configs.port, function () {
-  console.log('Example app listening on port '+configs.port+'!');
+// serve video files.
+app.use('/videos',express.static('videos'));
+// serve client side code.
+app.use('/',express.static('client'));
+
+//Finally starting the listener
+app.listen(configs.applicationPort, function () {
+  console.log('Example app listening on port '+configs.applicationPort+'!');
 });

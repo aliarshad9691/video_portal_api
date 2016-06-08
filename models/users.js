@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 var q = require('q');
 
+//defining schema for users table
 var userSchema = new mongoose.Schema({
 	  username: { type: String }, 
 	  password: String,
@@ -10,7 +11,8 @@ var userSchema = new mongoose.Schema({
 
 var User = mongoose.model('Users', userSchema);
 
-
+//generating random session id
+//todo: make sure no 2 users can have single sessionId
 function makeSessionId()
 {
     var text = "";
@@ -23,8 +25,9 @@ function makeSessionId()
 }
 
 
-
+//Initlizing interface object of this model.
 var userModel = {};
+
 //seeding database with default users
 userModel.seed = function(){
 	var defaultUser = new User({username:'ali', password:'5f4dcc3b5aa765d61d8327deb882cf99', activeSession:''});
@@ -41,8 +44,11 @@ userModel.seed = function(){
 	defaultUser.save(function(err, user) {
 	  if(err) console.dir('error occured in populating database');
 	});
+
+	console.log('users table populated.');
 }
 
+//Function to auth user baed on username and password.
 userModel.authUser = function(username, password){
 	var results = q.defer();
 
@@ -53,18 +59,18 @@ userModel.authUser = function(username, password){
 
 
 		if(dbuser){
-			var sessionId = makeSessionId();
-
-			var condition = {username: username, password: password};
-			var data = {activeSession: sessionId};
-			User.update(condition, data, function(){
+			
+			dbuser.activeSession = makeSessionId();
+			dbuser.markModified('string');
+			dbuser.save(function(err, dbuser){
 				var response = {};
 
 				response.status = 'success';
-				response.sessionId = sessionId;
+				response.sessionId = dbuser.activeSession;
 				response.username = dbuser.username;
 			  	results.resolve(response);
 			});
+
 				
 		} else{
 			var response = {};
@@ -72,13 +78,12 @@ userModel.authUser = function(username, password){
 			response.error = 'Invalid username or password';
 		  	results.resolve(response);	
 		}
-
-	  	
 	});
 
 	return results.promise;
 }
 
+//Function to return users by its sessionID.
 userModel.getBySessionId = function(sessionId){
 	var results = q.defer();
 
@@ -93,8 +98,8 @@ userModel.getBySessionId = function(sessionId){
 	return results.promise;
 }
 
-
-userModel.show = function(){
+//Function to return all users.
+userModel.get = function(){
 	var results = q.defer();
 
 	User.find(function(err, users) {
@@ -108,7 +113,7 @@ userModel.show = function(){
 }
 
 
-
+//Function to logout user.
 userModel.logout = function(sessionId){
 	var results = q.defer();
 
