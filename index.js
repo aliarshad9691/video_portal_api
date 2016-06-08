@@ -14,16 +14,16 @@ var routes = require('./routes/routes');
 var userModel = require('./models/users');
 
 
+// serve video files.
+app.use('/videos',express.static('videos'));
+// serve client side code.
+app.use('/app',express.static('client'));
+// logging requests to consoles.
 app.use(morgan('combined'));
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
-app.use(bodyParser.json())
-
-
-
-
-
+// parse application/x-www-form-urlencoded.
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json.
+app.use(bodyParser.json());
 
 
 mongoose.connect('mongodb://'+configs.dbHost+'/'+configs.dbName);

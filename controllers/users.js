@@ -3,31 +3,45 @@ var userModel = require('../models/users');
 var users = {};
 
 users.get = function (req, res) {
+	
+	
+	var results = userModel.show();
+	results.then(function(data){
+		res.send(data);
+	}, function(err){
+
+	});
 		
-		userModel.add();
-		var results = userModel.show();
-		results.then(function(data){
-			res.send(JSON.stringify(data));
-		}, function(err){
+};
 
-		});
-		// var test = new userModel({username:'Ali', password:123});
-		// test.save(function(err, test) {
-		//   if (err) return console.error(err);
-		//   //console.dir(test);
-		// });
+users.auth = function (req, res) {
 
-		// userModel.user.find(function(err, users) {
-		//   if (err) return console.error(err);
-		//   console.dir(users);
-		//   res.send(JSON.stringify(users));
-		// });
-		
-	};
+	if(!req.body.username || !req.body.password)
+	{
+		res.status(400);
+		res.send({status:'error',error:'Username or password is missing.'});	
+	}
+	
+	var user = userModel.authUser(req.body.username, req.body.password);
 
-users.post = function (req, res) {
-		res.send(JSON.stringify(req.body));
-	};
+	user.then(function(users){
+		res.send(users);	
+	}, function(){
+		res.send({status:'error',error:'Error occured while fetching data from database.'});
+	});
+
+};
+
+users.logout = function (req, res) {
+
+	var sessionId = req.query.sessionId;
+
+	var user = userModel.logout(sessionId);
+
+	res.send({status:'success'});	
+	
+
+};
 
 
 module.exports = users;
